@@ -25,8 +25,7 @@ class UsersController extends Controller
       'email'=> 'required',
       'password'=> 'required',
       'firstName'=> 'required',
-      'lastName'=> 'required',
-      'phoneNum'=> 'required'
+      'lastName'=> 'required'
     ];
 
     $validator = Validator::make(Purifier::clean($request->all()), $rules);
@@ -53,7 +52,6 @@ class UsersController extends Controller
       $users->firstName = $firstName;
       $users->lastName = $lastName;
       $users->phoneNum = $phoneNum;
-      $users->allowContact = 1;
 
       $users->save();
 
