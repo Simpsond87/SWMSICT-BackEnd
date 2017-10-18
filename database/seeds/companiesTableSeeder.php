@@ -26,7 +26,7 @@ class companiesTableSeeder extends Seeder
             Special offers – 500 commission-free trades for two years. After this period, online equity trades will cost an industry-leading $4.95.<br/> 
             No physical location available.",
             'website' => 'http://www.charlesschwab.com',
-            'image' => '../../logo-CharlesSchwab.jpg',
+            'image' => '../../logo-CharlesSchwab.png',
       ]);
       DB::table('companies')->insert([
         'name' => 'Ameritrade',
@@ -49,7 +49,7 @@ class companiesTableSeeder extends Seeder
         Special offers – None.<br/> 
         Physical locations – Offices located on the East and West coast, but financial advisor services primarily conducted online with low-fee structure.",
         'website' => 'http://www.voya.com',
-        'image' => '../../logo-Voya.jpg'
+        'image' => '../../logo-Voya.png'
       ]);
   }
 }
