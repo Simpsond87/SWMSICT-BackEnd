@@ -26,16 +26,16 @@ class InfoController extends Controller
     $isRetirement = $request->input('isRetirement');
     $isIndexFund = $request->input('isIndexFund');
 
-    $userID = 1;
 
+    if ($userID != 0){
     $checkOptions = Option::where('userID', '=', $userID)->first();
 
     if (!empty($checkOptions)) {
-      $temp = Option::where('userID', '=', $userID)
-            ->update(['riskLevel' => $riskLevel, 'minInvestment' => $minInvestment, 'isStock' => $isStock, 'isBond' => $isBond, 'isMutualFund' => $isMutualFund, 'isETF' => $isETF, 'isRetirement' => $isRetirement, 'isIndexFund' => $isIndexFund ]);
-      return Response::json(['success' => 'Your search criteria has been updated.', 'temp' => $temp]);
-    }
-    else {
+        $temp = Option::where('userID', '=', $userID)
+        ->update(['riskLevel' => $riskLevel, 'minInvestment' => $minInvestment, 'isStock' => $isStock, 'isBond' => $isBond, 'isMutualFund' => $isMutualFund, 'isETF' => $isETF, 'isRetirement' => $isRetirement, 'isIndexFund'  => $isIndexFund ]);
+        return Response::json(['success' => 'Your search criteria has been updated.', 'temp' => $temp]);
+      }
+    else{
       $option = new Option;
       $option->userID = $userID;
       $option->isStock = $isStock;
@@ -49,7 +49,8 @@ class InfoController extends Controller
       $option->save();
       return Response::json(['success' => 'Your search criteria has been saved.']);
     }
-
+  }
+    return Response::json(['nothing' => 'Nothing to do']);
 
   }
 
@@ -73,7 +74,7 @@ class InfoController extends Controller
     $validator = Validator::make(Purifier::clean($request->all()), $rules);
     if($validator->fails())
     {
-      return Response::json(['error' => "The fields Risk level and Minimum investmente are required"]);
+      return Response::json(['error' => "The fields Risk level and Minimum investment are required"]);
     }
 
     $userID = $request->input('userID');
@@ -87,6 +88,15 @@ class InfoController extends Controller
     $isIndexFund = $request->input('isIndexFund');
     $searchCriteria = [];
 
+    $searchData['minInvestment'] = $minInvestment;
+    $searchData['riskLevel'] = $riskLevel;
+    $searchData['isStock'] = $isStock;
+    $searchData['isBond'] = $isBond;
+    $searchData['isMutualFund'] = $isMutualFund;
+    $searchData['isETF'] = $isETF;
+    $searchData['isIndexFund'] = $isIndexFund;
+    $searchData['isRetirement'] = $isRetirement;
+
     $getProducts = Product::leftJoin('companies', 'companyID', '=', 'companies.id');
 
     if ($riskLevel != NULL) {
@@ -99,14 +109,23 @@ class InfoController extends Controller
       $searchCriteria[] = $minInvestment;
     }
 
-    if($physLoc == 1){
-      $getProducts->where('products.physicalLocationAvailable', '=', '1');
+    if ($physLoc != 'no'){
+      if($physLoc == 1){
+        $getProducts->where('products.physicalLocationAvailable', '=', '1');
+      }
+      else if ($physLoc == 0) {
+        $getProducts->where('products.physicalLocationAvailable', '=', '0');
+      }
+  }
+    if ($specOff != 'no'){
+      if($specOff == 1){
+        $getProducts->where('products.specialOffersAvailable', '=', '1');
+      }
+      else if ($specOff == 0){
+        $getProducts->where('products.specialOffersAvailable', '=', '0');
+      }
     }
-    if($specOff == 1){
-      $getProducts->where('products.specialOffersAvailable', '=', '1');
-    }
-
-    $getProducts = $getProducts->select('companies.name', 'companies.description', 'companies.website','products.id', 'products.name', 'products.summary', 'products.riskLevel', 'products.fees', 'products.performance',
+    $getProducts = $getProducts->select('companies.name as companyName', 'companies.description', 'companies.website', 'companies.image', 'products.id', 'products.name', 'products.summary', 'products.riskLevel', 'products.fees', 'products.performance',
     'products.minInvestment', 'products.physicalLocationAvailable', 'products.specialOffersAvailable', 'products.isStock', 'products.isBond', 'products.isMutualFund', 'products.isETF', 'products.isRetirement', 'products.isIndexFund')
     ->orderby('products.'.$type, $order)
     ->get();
@@ -187,11 +206,11 @@ class InfoController extends Controller
 
 
     if (count($resultProducts) > 0){
-      return Response::json(['messageNum' => '1', 'searchCriteria' => $searchCriteria, 'resultProducts' => $resultProducts]);
+      return Response::json(['messageNum' => '1', 'searchCriteria' => $searchCriteria, 'resultProducts' => $resultProducts, 'searchData' => $searchData]);
     }
     else {
 
-      return Response::json(['resultProducts' => $resultProducts, 'message' => 'We currently have no products that match your search criteria', 'messageNum' => '0', 'searchCriteria' => $searchCriteria]);
+      return Response::json(['resultProducts' => $resultProducts, 'message' => 'We currently have no products that match your search criteria', 'messageNum' => '0', 'searchCriteria' => $searchCriteria, 'searchData' => $searchData]);
     }
   }
 
